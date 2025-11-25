@@ -1,4 +1,4 @@
-# 📱 README — Disfruta Antofagasta (Flutter)
+# 📱 README — Museo RapaNui (Flutter)
 
 Guía **simple, sin FVM** para correr la app en Android y generar APK.
 
@@ -25,7 +25,7 @@ flutter doctor --android-licenses
 
 ```bash
 git clone <URL_DEL_REPO>
-cd disfruta_antofagasta
+cd Museo RapaNui
 ```
 
 2. **Crea `.env` (solo `API_URL`)**

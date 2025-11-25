@@ -26,7 +26,11 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _refreshDashboard() async {
-    await ref.read(homeProvider.notifier).refresh(); // usa el lang actual
+    // 1. Tomamos el idioma actual desde el provider (es, en, pt, fr)
+    final lang = ref.read(languageProvider);
+
+    // 2. Llamamos al notifier pasándole ese idioma
+    await ref.read(homeProvider.notifier).refresh(lang);
   }
 
   @override
@@ -37,15 +41,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.bluePrimaryDark,
       appBar: AppBar(
-        title: Text('home.welcome'.tr(), style: TextStyle(color: Colors.white)),
+        title: Text(
+          'home.welcome'.tr(),
+          style: const TextStyle(color: Colors.white),
+        ),
         leading: Consumer(
           builder: (context, ref, _) => IconButton(
             tooltip: 'Cerrar sesión',
             icon: const Icon(Icons.logout, color: Colors.white, size: 22),
             onPressed: () async {
               await ref.read(authProvider.notifier).logoutUser();
-              ref.read(authModeProvider.notifier).state =
-                  AuthMode.login; // o guest / register
+              ref.read(authModeProvider.notifier).state = AuthMode.login;
 
               if (!context.mounted) return;
               context.pushReplacementNamed('login');
@@ -59,15 +65,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               return Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.bluePrimaryDark, // Fondo azul del botón
+                  color: AppColors.bluePrimaryDark,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: lang,
-                    // Menú desplegable con fondo azul oscuro
                     dropdownColor: AppColors.bluePrimaryDark,
-                    // Ícono y texto en blanco
                     iconEnabledColor: Colors.white,
                     style: const TextStyle(color: Colors.white),
                     items: const [
@@ -115,12 +119,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (state.weather != null)
             Row(
               children: [
-                // —— UV chip ——
                 if (state.weather!.uvMax != null) ...[
                   const SizedBox(width: 10),
                   Builder(
                     builder: (context) {
-                      final uv = state.weather!.uvMax; // double o num
+                      final uv = state.weather!.uvMax;
                       final level = uvToLevel(uv);
                       return Container(
                         padding: const EdgeInsets.symmetric(
@@ -130,7 +133,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.sandLight.withValues(alpha: 0.80),
                           border: Border.all(color: level.color, width: 1),
-                          borderRadius: BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(12),
                             bottomLeft: Radius.circular(12),
                           ),
@@ -164,7 +167,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     color: level.color,
                                   ),
                                 ),
-
                                 Text(
                                   level.label,
                                   style: TextStyle(
@@ -195,8 +197,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             if (!state.isLoadingBanners && state.errorMessageBanner != null)
               BannerError(
                 message: state.errorMessageBanner!,
-                onRetry: () => ref.read(homeProvider.notifier).loadBanners(),
+                onRetry: () {
+                  ref.read(homeProvider.notifier).loadBanners();
+                },
               ),
+
             if (!state.isLoadingBanners &&
                 state.errorMessageBanner == null &&
                 (state.banners?.isNotEmpty ?? false))
@@ -209,7 +214,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         b.id,
                         meta: {'screen': 'Home', 'name': b.titulo},
                       );
-                  print(b.id);
                 },
               ),
             if (!state.isLoadingBanners &&
@@ -219,7 +223,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(height: 14),
             Text(
-              'Destacados',
+              'home.featured'.tr(),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -232,8 +236,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               selectedId: state.selectedCategoryId,
               onChanged: (cat) {
                 ref.read(homeProvider.notifier).selectCategory(cat.id);
-                print('se le hizo click a ${cat.id}');
-
                 ref
                     .read(analyticsProvider)
                     .clickCategory(
@@ -251,12 +253,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 12),
               const PlaceSkeleton(),
             ] else ...[
-              // Listado con un solo scroll (el del Home)
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: places.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, i) {
                   final p = places[i];
 
@@ -264,14 +265,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     key: ValueKey(p.id),
                     place: p,
                     onTap: () {
-                      print('se le hizo click a $p.id');
                       ref
                           .read(analyticsProvider)
                           .clickObject(
                             p.id,
                             meta: {'screen': 'Home', 'name': p.titulo},
                           );
-                      context.push('/place/${p.id}'); // o tu navegación
+                      context.push('/place/${p.id}');
                     },
                     onFavorite: false,
                   );

@@ -1,6 +1,27 @@
 {
-  "app": { "name": "Enjoy Antofagasta" },
-  "home": { "welcome": "Welcome!", "featured": "Highlights", "search": "Where to go?" },
-  "tabs": { "home": "Home", "places": "Places", "map": "Map", "favorites": "Favorites" },
-  "actions": { "retry": "Retry" }
+  "app": { "name": "Rapa Nui Museum" },
+
+  "home": {
+    "welcome": "Welcome!",
+    "featured": "Featured",
+    "search": "What piece are you looking for?"
+  },
+
+  "tabs": {
+    "home": "Home",
+    "scan": "Scan QR",
+    "pieces": "Pieces",
+    "places": "Pieces",
+    "map": "Map",
+    "favorites": "Favorites"
+  },
+
+  "pieces": {
+    "title": "Pieces",
+    "search": "What piece are you looking for?"
+  },
+
+  "actions": {
+    "retry": "Retry"
+  }
 }

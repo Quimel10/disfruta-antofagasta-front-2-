@@ -1,6 +1,7 @@
 // lib/features/places/presentation/screens/places_root_screen.dart
 import 'dart:async';
 import 'dart:math';
+
 import 'package:disfruta_antofagasta/config/theme/theme_config.dart';
 import 'package:disfruta_antofagasta/features/home/domain/entities/place.dart';
 import 'package:disfruta_antofagasta/features/home/presentation/widgets/category_pill.dart';
@@ -13,8 +14,7 @@ import 'package:disfruta_antofagasta/shared/provider/favorite_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-// Ajusta imports a tus paths reales
+import 'package:easy_localization/easy_localization.dart';
 
 class PlacesScreen extends ConsumerStatefulWidget {
   const PlacesScreen({super.key});
@@ -26,17 +26,19 @@ class PlacesScreen extends ConsumerStatefulWidget {
 class _PlacesScreenState extends ConsumerState<PlacesScreen> {
   final _scroll = ScrollController();
   final _searchCtrl = TextEditingController();
-  Timer? _debounce;
   final _searchFocus = FocusNode();
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
+
     // Carga inicial: categorías + primera página
     Future.microtask(() async {
       await ref.read(placeProvider.notifier).loadCategories();
       await ref.read(placeProvider.notifier).getPlaces(page: 1);
     });
+
     _scroll.addListener(_onScroll);
   }
 
@@ -51,10 +53,13 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
 
   void _onScroll() {
     final s = ref.read(placeProvider);
+
+    // Si estoy en modo búsqueda, no hago paginación infinita
     if ((s.search?.isNotEmpty ?? false)) return;
 
     final pos = _scroll.position;
     final trigger = max(240, pos.viewportDimension * 0.20);
+
     if (pos.pixels >= pos.maxScrollExtent - trigger) {
       if (!s.isLoadingMore && s.hasMore) {
         ref
@@ -69,7 +74,6 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
 
   Future<void> _onRefresh() async {
     await ref.read(placeProvider.notifier).refresh();
-
     _searchCtrl.clear();
   }
 
@@ -78,11 +82,14 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
     _debounce = Timer(const Duration(milliseconds: 350), () {
       final text = v.trim();
       final s = ref.read(placeProvider);
+
       if (text.isEmpty) {
+        // Sin texto => modo “lista completa”
         ref
             .read(placeProvider.notifier)
             .getPlaces(categoryId: s.selectedCategoryId, page: 1);
       } else {
+        // Con texto => búsqueda (sin paginación)
         ref
             .read(placeProvider.notifier)
             .getSearch(categoryId: s.selectedCategoryId, search: text);
@@ -94,12 +101,17 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(placeProvider);
     final items = state.places ?? const <PlaceEntity>[];
+    final bool isSearching =
+        _searchCtrl.text.trim().isNotEmpty ||
+        (state.search?.isNotEmpty ?? false);
 
     return Scaffold(
       backgroundColor: AppColors.bluePrimaryDark,
-
       appBar: AppBar(
-        title: Text('Qué visitar', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'pieces.title'.tr(),
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: _onRefresh,
@@ -107,23 +119,32 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
           controller: _scroll,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
           children: [
-            // Buscar
+            // BUSCADOR
             TextField(
               controller: _searchCtrl,
+              focusNode: _searchFocus,
               autofocus: false,
               onChanged: _onSearchChanged,
               style: const TextStyle(color: Colors.black),
-              decoration: const InputDecoration(
-                hintText: '¿Qué visitar?',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: 'pieces.search'.tr(),
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
                 fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
               ),
             ),
             const SizedBox(height: 12),
 
-            // Filtro por categoría
-            const SizedBox(height: 6),
-            if (state.categories != null)
+            // CATEGORÍAS
+            if (state.categories != null) ...[
               CategoryChipsList(
                 items: state.categories!,
                 selectedId: state.selectedCategoryId,
@@ -132,42 +153,60 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
                       .read(analyticsProvider)
                       .clickCategory(
                         cat.id,
-                        meta: {'screen': 'que visitar', 'name': cat.name},
+                        meta: {'screen': 'Piezas', 'name': cat.name},
                       );
-                  ref
-                      .read(placeProvider.notifier)
-                      .getSearch(
-                        categoryId: cat.id,
-                        search: _searchCtrl.text.trim(),
-                      );
+
+                  final currentSearch = _searchCtrl.text.trim();
+                  if (currentSearch.isEmpty) {
+                    ref
+                        .read(placeProvider.notifier)
+                        .getPlaces(categoryId: cat.id, page: 1);
+                  } else {
+                    ref
+                        .read(placeProvider.notifier)
+                        .getSearch(categoryId: cat.id, search: currentSearch);
+                  }
                 },
-                padding: EdgeInsets.zero, // que parta más pegado a la izquierda
+                padding: EdgeInsets.zero,
               ),
+              const SizedBox(height: 12),
+            ],
 
-            const SizedBox(height: 12),
-
-            // Estados
+            // CONTENIDO SEGÚN ESTADO
             if (state.isLoadingPlaces == true && items.isEmpty) ...[
+              // Carga inicial (skeletons)
               const PlaceSkeleton(),
               const SizedBox(height: 12),
               const PlaceSkeleton(),
-            ] else if (state.isLoadingMore && items.isEmpty) ...[
+            ] else if (!isSearching && items.isEmpty) ...[
+              // Sin búsqueda y sin datos => error / vacío general
               SectionError(
-                message: 'no se han encontrado resultados con ese mombre',
+                message: 'No se han encontrado piezas.',
                 onRetry: () {
                   _searchCtrl.clear();
                   ref
                       .read(placeProvider.notifier)
-                      .getPlaces(page: 1, categoryId: 0);
+                      .getPlaces(page: 1, categoryId: state.selectedCategoryId);
+                },
+              ),
+            ] else if (isSearching && items.isEmpty) ...[
+              // En búsqueda y sin resultados => mensaje específico
+              SectionError(
+                message: 'No se encontraron piezas con ese nombre.',
+                onRetry: () {
+                  _searchCtrl.clear();
+                  ref
+                      .read(placeProvider.notifier)
+                      .getPlaces(page: 1, categoryId: state.selectedCategoryId);
                 },
               ),
             ] else ...[
-              // Lista
+              // LISTA DE RESULTADOS
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: items.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (_, i) {
                   final p = items[i];
                   final isFav = ref.watch(favoritesProvider).contains(p.id);
@@ -180,7 +219,7 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
                           .read(analyticsProvider)
                           .clickObject(
                             p.id,
-                            meta: {'screen': 'Que visitar', 'name': p.titulo},
+                            meta: {'screen': 'Piezas', 'name': p.titulo},
                           );
                       FocusScope.of(context).unfocus();
                       context.push('/place/${p.id}');
@@ -192,10 +231,13 @@ class _PlacesScreenState extends ConsumerState<PlacesScreen> {
                   );
                 },
               ),
-              if (state.isLoadingMore == true) ...[
+
+              // Paginación / mensajes extra SOLO cuando NO estamos buscando
+              if (!isSearching && state.isLoadingMore == true) ...[
                 const SizedBox(height: 12),
                 const PlaceSkeleton(),
-              ] else if (state.hasMore == false &&
+              ] else if (!isSearching &&
+                  state.hasMore == false &&
                   (state.search?.isEmpty ?? true)) ...[
                 const SizedBox(height: 12),
                 Center(

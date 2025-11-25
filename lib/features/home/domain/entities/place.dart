@@ -15,6 +15,7 @@ class PlaceEntity {
   final String imagenHigh;
   final List<String> imgThumb; // 👈 opcional pero mejor lista vacía
   final List<String> imgMedium; // 👈 opcional pero mejor lista vacía
+  final String audio;
 
   PlaceEntity({
     required this.id,
@@ -33,5 +34,6 @@ class PlaceEntity {
     required this.imagenHigh,
     this.imgThumb = const [],
     this.imgMedium = const [],
+    this.audio = "",
   });
 }

@@ -5,14 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class HomeNotifier extends StateNotifier<HomeState> {
   final HomeRepository repository;
 
+  /// Idioma actual (es, en, pt, fr)
   String _currentLang = 'es';
 
   HomeNotifier({required this.repository}) : super(HomeState.initial());
 
+  /// --- CARGA INICIAL / CAMBIO DE IDIOMA ---
   Future<void> init(String lang) async {
     _currentLang = lang;
 
-    // Reset de la vista
+    // reseteamos estado
     state = state.copyWith(
       isLoadingBanners: true,
       isLoadingCategories: true,
@@ -27,7 +29,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       weather: null,
     );
 
-    // Disparamos cargas en paralelo
     await Future.wait([
       loadBanners(),
       loadCategories(),
@@ -36,24 +37,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ], eagerError: false);
   }
 
-  Future<void> refresh() => init(_currentLang);
-  Future<void> loadWeather() async {
-    state = state.copyWith(isLoadingWeather: true, errorMessage: null);
-    try {
-      final weather = await repository.getWeather();
-      state = state.copyWith(isLoadingWeather: false, weather: weather);
-    } catch (e) {
-      state = state.copyWith(
-        isLoadingWeather: false,
-        errorMessage: 'Error loading banners: $e',
-      );
-    }
-  }
+  /// Pull-to-refresh desde Home
+  Future<void> refresh(String lang) => init(lang);
 
+  // ---------------- BANNERS ----------------
   Future<void> loadBanners() async {
     state = state.copyWith(isLoadingBanners: true, errorMessageBanner: null);
+
     try {
-      final banners = await repository.getBanners();
+      final banners = await repository.getBanners(_currentLang);
       state = state.copyWith(
         isLoadingBanners: false,
         banners: banners,
@@ -62,15 +54,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
     } catch (e) {
       state = state.copyWith(
         isLoadingBanners: false,
-        errorMessage: 'Error loading banners: $e',
+        errorMessageBanner: 'Error loading banners: $e',
       );
     }
   }
 
+  // -------------- CATEGORÍAS ---------------
   Future<void> loadCategories() async {
     state = state.copyWith(isLoadingCategories: true, errorMessage: null);
+
     try {
-      final categories = await repository.getFeaturedCategory();
+      final categories = await repository.getFeaturedCategory(_currentLang);
       state = state.copyWith(
         isLoadingCategories: false,
         categories: categories,
@@ -83,12 +77,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> loadFeaturedPlaces() async {
+  // ---------- LUGARES DESTACADOS ----------
+  Future<void> loadFeaturedPlaces({int? categoryId}) async {
     state = state.copyWith(isLoadingPlaces: true, errorMessage: null);
+
+    final catId = categoryId ?? state.selectedCategoryId;
+
     try {
       final places = await repository.getFeatured(
-        categoryId: state.selectedCategoryId,
+        categoryId: catId,
+        lang: _currentLang,
       );
+
       state = state.copyWith(isLoadingPlaces: false, places: places);
     } catch (e) {
       state = state.copyWith(
@@ -98,12 +98,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  // ----------------- CLIMA -----------------
+  Future<void> loadWeather() async {
+    state = state.copyWith(isLoadingWeather: true, errorMessage: null);
+
+    try {
+      final weather = await repository.getWeather(_currentLang);
+      state = state.copyWith(isLoadingWeather: false, weather: weather);
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingWeather: false,
+        errorMessage: 'Error loading weather: $e',
+      );
+    }
+  }
+
+  /// --- CAMBIAR CATEGORÍA ---
   Future<void> selectCategory(int? categoryId) async {
     if (state.selectedCategoryId == categoryId) {
-      categoryId = 0; // No hacer nada si la categoría seleccionada es la misma
+      categoryId = 0;
     }
+
     state = state.copyWith(selectedCategoryId: categoryId);
-    await loadFeaturedPlaces();
-    // Aquí podrías agregar lógica adicional, como filtrar lugares por categoría
+    await loadFeaturedPlaces(categoryId: categoryId);
   }
 }

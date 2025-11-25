@@ -56,6 +56,12 @@ dependencies:
   get_it: ^8.2.0
   formz: ^0.8.0
   animations: ^2.1.0
+  audioplayers: ^6.1.0
+  just_audio: ^0.9.42
+  mobile_scanner: ^3.5.0
+  flutter_html: ^3.0.0
+
+
 
 dev_dependencies:
   flutter_test:
@@ -98,15 +104,15 @@ flutter:
     - assets/i18n/pt.json
     - assets/i18n/fr.json
     - assets/bg_portada.png
-    - assets/logo_disfruta.png
+    - assets/logo_museo.png
   #   - images/a_dot_ham.jpeg
 flutter_launcher_icons:
   android: true
-  image_path: "assets/logo.png" # 👈 tu logo en PNG cuadrado (512x512 recomendado)
+  image_path: "assets/logo_museo.png" # 👈 tu logo en PNG cuadrado (512x512 recomendado)
   min_sdk_android: 21
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/logo.png
+  image: assets/logo_museo.png
   android: true
   ios: true
   # An image asset can refer to one or more resolution-specific "variants", see

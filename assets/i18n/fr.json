@@ -1,6 +1,27 @@
 {
-  "app": { "name": "Profite d'Antofagasta" },
-  "home": { "welcome": "Bienvenue !", "featured": "À la une", "search": "Où aller ?" },
-  "tabs": { "home": "Accueil", "places": "Lieux", "map": "Carte", "favorites": "Favoris" },
-  "actions": { "retry": "Réessayer" }
+  "app": { "name": "Musée RapaNui" },
+
+  "home": {
+    "welcome": "Bienvenue !",
+    "featured": "À la une",
+    "search": "Quelle pièce recherchez-vous ?"
+  },
+
+  "tabs": {
+    "home": "Accueil",
+    "scan": "Scanner QR",
+    "pieces": "Pièces",
+    "places": "Pièces",
+    "map": "Carte",
+    "favorites": "Favoris"
+  },
+
+  "pieces": {
+    "title": "Pièces",
+    "search": "Quelle pièce recherchez-vous ?"
+  },
+
+  "actions": {
+    "retry": "Réessayer"
+  }
 }

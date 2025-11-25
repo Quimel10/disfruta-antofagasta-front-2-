@@ -1,10 +1,9 @@
+import 'package:disfruta_antofagasta/features/scan/presentation/screens/qr_scanner_screen.dart';
 import 'package:disfruta_antofagasta/config/router/app_router_notifier.dart';
 import 'package:disfruta_antofagasta/config/router/routes.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/screens/login_screen.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/state/auth/auth_state.dart';
-import 'package:disfruta_antofagasta/features/favorites/presentation/screens/favorites_screen.dart';
 import 'package:disfruta_antofagasta/features/home/presentation/screens/home_screen.dart';
-import 'package:disfruta_antofagasta/features/map/presentation/screens/map_screen.dart';
 import 'package:disfruta_antofagasta/features/places/presentation/screens/place_details_screen.dart';
 import 'package:disfruta_antofagasta/features/places/presentation/screens/places_screen.dart';
 import 'package:disfruta_antofagasta/shared/widgets/nav_scaffold.dart';
@@ -48,6 +47,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) =>
             NavScaffold(navigationShell: navigationShell),
         branches: [
+          // 0 - INICIO
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -58,6 +58,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+
+          // 1 - ESCANEAR QR
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                // ruta interna para el tab de escaneo
+                path: '/scan',
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: QrScannerScreen()),
+              ),
+            ],
+          ),
+
+          // 2 - PIEZAS (antes places / "Qué visitar")
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -68,36 +82,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: AppRoute.map,
-                path: AppPath.map,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: MapScreen()),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                name: AppRoute.favorites,
-                path: AppPath.favorites,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: FavoritesScreen()),
-              ),
-            ],
-          ),
-          // StatefulShellBranch(
-          //   routes: [
-          //     GoRoute(
-          //       name: AppRoute.services,
-          //       path: AppPath.services,
-          //       pageBuilder: (context, state) =>
-          //           const NoTransitionPage(child: ServicesScreen()),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     ],

@@ -16,6 +16,9 @@ class PlaceMapper {
     tipoColor: json['tipo_color'], // opcional
     imagen: json['imagen'] ?? '',
     imagenHigh: json['imagen_high'] ?? '',
+
+    audio: json['audio'] ?? '', // 🔊NUEVO
+
     imgThumb:
         (json['img_thumb'] as List<dynamic>?)
             ?.map((e) => e.toString())
@@ -45,7 +48,7 @@ extension PlaceEntityJson on PlaceEntity {
     'tipo_icono': tipoIcono,
     'imagen': imagen,
     'imagen_high': imagenHigh,
-    // agrega los opcionales si quieres persistir todo
+    'audio': audio,
   };
 
   static PlaceEntity fromJson(Map<String, dynamic> json) {

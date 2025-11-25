@@ -1,6 +1,27 @@
 {
   "app": { "name": "Disfruta Antofagasta" },
-  "home": { "welcome": "¡Bienvenido!", "featured": "Destacados", "search": "¿Qué visitar?" },
-  "tabs": { "home": "Inicio", "places": "Qué visitar", "map": "Mapa", "favorites": "Favoritos" },
-  "actions": { "retry": "Reintentar" }
+
+  "home": {
+    "welcome": "¡Bienvenido!",
+    "featured": "Destacados",
+    "search": "¿Qué pieza buscas?"
+  },
+
+  "tabs": {
+    "home": "Inicio",
+    "scan": "Escanear QR",
+    "pieces": "Piezas",
+    "places": "Piezas",
+    "map": "Mapa",
+    "favorites": "Favoritos"
+  },
+
+  "pieces": {
+    "title": "Piezas",
+    "search": "¿Qué pieza buscar?"
+  },
+
+  "actions": {
+    "retry": "Reintentar"
+  }
 }

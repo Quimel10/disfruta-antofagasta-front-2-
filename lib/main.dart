@@ -59,7 +59,7 @@ class MainApp extends ConsumerWidget {
       supportedLocales: context.supportedLocales,
       localizationsDelegates: context.localizationDelegates,
       debugShowCheckedModeBanner: false,
-      title: 'Disfruta Antofagasta',
+      title: 'Museo RapaNui',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,

@@ -1,6 +1,27 @@
 {
-  "app": { "name": "Aprecie Antofagasta" },
-  "home": { "welcome": "Bem-vindo!", "featured": "Destaques", "search": "Para onde ir?" },
-  "tabs": { "home": "Início", "places": "Lugares", "map": "Mapa", "favorites": "Favoritos" },
-  "actions": { "retry": "Tentar novamente" }
+  "app": { "name": "Museu RapaNui" },
+
+  "home": {
+    "welcome": "Bem-vindo!",
+    "featured": "Destaques",
+    "search": "Que peça você procura?"
+  },
+
+  "tabs": {
+    "home": "Início",
+    "scan": "Escanear QR",
+    "pieces": "Peças",
+    "places": "Peças",
+    "map": "Mapa",
+    "favorites": "Favoritos"
+  },
+
+  "pieces": {
+    "title": "Peças",
+    "search": "Que peça você procura?"
+  },
+
+  "actions": {
+    "retry": "Tentar novamente"
+  }
 }
