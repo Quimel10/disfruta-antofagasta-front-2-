@@ -1,4 +1,5 @@
-// lib/ui/auth/widgets/forms/login_form.dart
+// lib/features/auth/presentation/form/login_form.dart
+import 'package:disfruta_antofagasta/config/theme/theme_config.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/state/login/login_provider.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/widgets/rounded_field.dart';
 import 'package:disfruta_antofagasta/shared/provider/forgot_mode_provider.dart';
@@ -16,6 +17,7 @@ class LoginForm extends ConsumerStatefulWidget {
 
 class _LoginViewState extends ConsumerState<LoginForm> {
   final _emailCtrl = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +27,6 @@ class _LoginViewState extends ConsumerState<LoginForm> {
       if (!mounted) return;
       if (last != null && last.isNotEmpty) {
         _emailCtrl.text = last;
-        // opcional: sincroniza el form state
         ref.read(loginFormProvider.notifier).onEmailChange(last);
       }
     });
@@ -45,9 +46,9 @@ class _LoginViewState extends ConsumerState<LoginForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // EMAIL
         RoundedField(
           controller: _emailCtrl,
-
           hint: 'Correo electrónico',
           prefix: const Icon(Icons.mail_outlined),
           keyboardType: TextInputType.emailAddress,
@@ -56,12 +57,13 @@ class _LoginViewState extends ConsumerState<LoginForm> {
               ref.read(loginFormProvider.notifier).onEmailChange(v),
         ),
         const SizedBox(height: 12),
+
+        // PASSWORD
         RoundedField(
           hint: 'Contraseña',
           obscureText: obscure,
           prefix: const Icon(Icons.lock_outline),
           error: form.password.errorMessage,
-
           suffix: IconButton(
             icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
             onPressed: () =>
@@ -70,16 +72,19 @@ class _LoginViewState extends ConsumerState<LoginForm> {
           onChanged: (v) =>
               ref.read(loginFormProvider.notifier).onPasswordChanged(v),
         ),
+
         const SizedBox(height: 10),
 
-        const SizedBox(height: 8),
+        // BOTÓN PRINCIPAL (MISMO ESTILO QUE INVITADO / REGISTRO)
         SizedBox(
-          height: 56,
+          height: 52,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              shape: const StadiumBorder(),
-              backgroundColor: const Color(0xFF0E4560),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.panelWine,
+              foregroundColor: AppColors.textOnPanel,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
@@ -97,7 +102,7 @@ class _LoginViewState extends ConsumerState<LoginForm> {
           onPressed: () => ref.read(forgotModeProvider.notifier).state = true,
           child: const Text(
             '¿Olvidaste tu contraseña?',
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
           ),
         ),
       ],

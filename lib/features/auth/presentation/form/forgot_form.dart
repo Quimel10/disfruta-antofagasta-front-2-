@@ -1,4 +1,5 @@
-// features/auth/presentation/form/forgot_form.dart
+// lib/features/auth/presentation/form/forgot_form.dart
+import 'package:disfruta_antofagasta/config/theme/theme_config.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/state/forgot/forgot_provider.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/state/forgot/forgot_state.dart';
 import 'package:disfruta_antofagasta/shared/provider/forgot_mode_provider.dart';
@@ -21,92 +22,72 @@ class ForgotForm extends ConsumerWidget {
           s.step == ForgotStep.email
               ? 'Recuperar contraseña'
               : 'Ingresa el código y tu nueva contraseña',
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: Colors.black, // 👈 TÍTULO EN NEGRO
+          ),
         ),
         const SizedBox(height: 12),
 
-        // Email (siempre visible; en paso 2 lo dejamos readOnly)
+        // Email
         TextFormField(
           initialValue: s.email,
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
           onChanged: n.setEmail,
           readOnly: s.step == ForgotStep.code,
           keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            hintText: 'Correo electrónico',
-            filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.92),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(24),
-              borderSide: BorderSide(
-                color: Colors.black.withValues(alpha: 0.06),
-              ),
-            ),
-          ),
+          decoration: _inputDecoration('Correo electrónico'),
         ),
         const SizedBox(height: 12),
 
         if (s.step == ForgotStep.code) ...[
+          // Código
           TextFormField(
             onChanged: n.setCode,
-            style: TextStyle(color: Colors.black),
-
-            decoration: InputDecoration(
-              hintText: 'Código de verificación',
-              filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.92),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(24),
-                borderSide: BorderSide(
-                  color: Colors.black.withValues(alpha: 0.06),
-                ),
-              ),
-            ),
+            style: const TextStyle(color: Colors.black),
+            decoration: _inputDecoration('Código de verificación'),
           ),
           const SizedBox(height: 12),
+
+          // Nueva contraseña
           TextFormField(
             onChanged: n.setPassword,
-            obscureText: s.hidePassword, // <-- usa la bandera
+            obscureText: s.hidePassword,
             obscuringCharacter: '•',
             enableSuggestions: false,
             autocorrect: false,
             keyboardType: TextInputType.visiblePassword,
             style: const TextStyle(color: Colors.black),
-            decoration: InputDecoration(
-              hintText: 'Nueva contraseña',
+            decoration: _inputDecoration('Nueva contraseña').copyWith(
               hintStyle: const TextStyle(color: Colors.black54),
-              filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.92),
               suffixIcon: IconButton(
-                // <-- botón para ver/ocultar
-                onPressed:
-                    n.togglePasswordVisibility, // cambia el bool en el notifier
+                onPressed: n.togglePasswordVisibility,
                 icon: Icon(
                   s.hidePassword ? Icons.visibility_off : Icons.visibility,
                 ),
                 tooltip: s.hidePassword ? 'Mostrar' : 'Ocultar',
               ),
-              suffixIconColor:
-                  Colors.black45, // fija color en dark mode también
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(24),
-                borderSide: BorderSide(
-                  color: Colors.black.withValues(alpha: 0.06),
-                ),
-              ),
+              suffixIconColor: Colors.black45,
             ),
           ),
           const SizedBox(height: 8),
           const Text(
             'Si el correo existe, te enviamos un código. '
             'Ingresa el código y tu nueva contraseña para continuar.',
-            style: TextStyle(fontSize: 12),
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.black, // 👈 TEXTO AYUDA PASO 2 EN NEGRO
+            ),
           ),
           const SizedBox(height: 8),
         ] else ...[
           const Text(
             'Si el correo existe, te enviaremos un código para recuperar tu cuenta.',
-            style: TextStyle(fontSize: 12),
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.black, // 👈 TEXTO AYUDA PASO 1 EN NEGRO
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -116,12 +97,20 @@ class ForgotForm extends ConsumerWidget {
           const SizedBox(height: 8),
         ],
 
+        // BOTÓN PRINCIPAL MISMO COLOR
         SizedBox(
-          height: 50,
+          height: 52,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              shape: const StadiumBorder(),
-              backgroundColor: const Color(0xFF0E4560),
+              backgroundColor: AppColors.panelWine,
+              foregroundColor: AppColors.textOnPanel,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
             ),
             onPressed: s.isPosting
                 ? null
@@ -139,7 +128,6 @@ class ForgotForm extends ConsumerWidget {
 
         TextButton(
           onPressed: () {
-            // volver al login
             ref.read(forgotModeProvider.notifier).state = false;
             n.backToLogin();
           },
@@ -149,6 +137,36 @@ class ForgotForm extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.black54),
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.92),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(24),
+        borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(24),
+        borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        borderSide: BorderSide(color: Color(0xFF0E4560), width: 1.2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(24),
+        borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.5)),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        borderSide: BorderSide(color: Colors.red, width: 1.2),
+      ),
     );
   }
 }

@@ -26,10 +26,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _refreshDashboard() async {
-    // 1. Tomamos el idioma actual desde el provider (es, en, pt, fr)
     final lang = ref.read(languageProvider);
-
-    // 2. Llamamos al notifier pasándole ese idioma
     await ref.read(homeProvider.notifier).refresh(lang);
   }
 
@@ -39,16 +36,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final places = state.places ?? const <PlaceEntity>[];
 
     return Scaffold(
-      backgroundColor: AppColors.bluePrimaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           'home.welcome'.tr(),
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(
+            color: Colors.black, // ahora negro
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: Consumer(
           builder: (context, ref, _) => IconButton(
             tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout, color: Colors.white, size: 22),
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.black, // negro
+              size: 22,
+            ),
             onPressed: () async {
               await ref.read(authProvider.notifier).logoutUser();
               ref.read(authModeProvider.notifier).state = AuthMode.login;
@@ -59,48 +65,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
         actions: [
+          // Selector de idioma
           Consumer(
             builder: (context, ref, _) {
               final lang = ref.watch(languageProvider);
               return Container(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.bluePrimaryDark,
+                  color: AppColors.sandLight, // fondo arena
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: lang,
-                    dropdownColor: AppColors.bluePrimaryDark,
-                    iconEnabledColor: Colors.white,
-                    style: const TextStyle(color: Colors.white),
+                    dropdownColor: AppColors.sandLight,
+                    iconEnabledColor: Colors.black,
+                    style: const TextStyle(color: Colors.black),
                     items: const [
                       DropdownMenuItem(
                         value: 'es',
                         child: Text(
                           '🇪🇸 ES',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black),
                         ),
                       ),
                       DropdownMenuItem(
                         value: 'en',
                         child: Text(
                           '🇬🇧 EN',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black),
                         ),
                       ),
                       DropdownMenuItem(
                         value: 'pt',
                         child: Text(
                           '🇧🇷 PT',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black),
                         ),
                       ),
                       DropdownMenuItem(
                         value: 'fr',
                         child: Text(
                           '🇫🇷 FR',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black),
                         ),
                       ),
                     ],
@@ -116,6 +123,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               );
             },
           ),
+
+          // Widget de clima / UV
           if (state.weather != null)
             Row(
               children: [
@@ -226,7 +235,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               'home.featured'.tr(),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black, // “Destacados” en negro
               ),
             ),
             const SizedBox(height: 14),

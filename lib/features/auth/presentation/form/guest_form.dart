@@ -1,8 +1,10 @@
+// lib/features/auth/presentation/form/guest_form.dart
 import 'package:disfruta_antofagasta/features/auth/presentation/state/guest/guest_provider.dart';
+import 'package:disfruta_antofagasta/features/auth/domain/entities/country.dart';
+import 'package:disfruta_antofagasta/config/theme/theme_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:disfruta_antofagasta/features/auth/domain/entities/country.dart';
 
 class GuestForm extends ConsumerStatefulWidget {
   const GuestForm({super.key});
@@ -29,7 +31,7 @@ class _GuestFormState extends ConsumerState<GuestForm> {
       children: [
         // Nombre
         TextFormField(
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
           initialValue: s.name,
           onChanged: n.nameChanged,
           decoration: _glassInput(
@@ -38,16 +40,16 @@ class _GuestFormState extends ConsumerState<GuestForm> {
           ),
           validator: (v) {
             if (v == null || v.trim().isEmpty) return 'Requerido';
-
             return null;
           },
         ),
         const SizedBox(height: 12),
+
         // Edad (> 1 y <= 120)
         TextFormField(
           style: const TextStyle(color: Colors.black),
           initialValue: s.age?.toString() ?? '',
-          onChanged: n.ageChanged, // recibe String
+          onChanged: n.ageChanged,
           keyboardType: const TextInputType.numberWithOptions(
             signed: false,
             decimal: false,
@@ -65,17 +67,16 @@ class _GuestFormState extends ConsumerState<GuestForm> {
           decoration: _glassInput(
             'Edad',
             prefix: const Icon(Icons.cake_outlined),
-            suffixText: 'años', // <-- sufijo visible
+            suffixText: 'años',
           ),
         ),
-
         const SizedBox(height: 12),
 
         // Días de visita (> 0 y <= 365)
         TextFormField(
           style: const TextStyle(color: Colors.black),
           initialValue: s.stay?.toString() ?? '',
-          onChanged: n.daysStayChanged, // recibe String
+          onChanged: n.daysStayChanged,
           keyboardType: const TextInputType.numberWithOptions(
             signed: false,
             decimal: false,
@@ -102,14 +103,10 @@ class _GuestFormState extends ConsumerState<GuestForm> {
         DropdownButtonFormField<Country>(
           initialValue: s.selectedCountry,
           isExpanded: true,
-          dropdownColor: Colors.white, // <-- fondo del menú
+          dropdownColor: Colors.white,
           iconEnabledColor: Colors.black45,
-          style: TextStyle(color: Colors.black),
-          hint: const Text(
-            'País',
-            style: TextStyle(color: Colors.black54),
-          ), // <-- placeholder
-
+          style: const TextStyle(color: Colors.black),
+          hint: const Text('País', style: TextStyle(color: Colors.black54)),
           decoration: _glassInput(
             'País',
             prefix: const Icon(Icons.public_outlined),
@@ -139,10 +136,9 @@ class _GuestFormState extends ConsumerState<GuestForm> {
           DropdownButtonFormField<int>(
             initialValue: s.selectedRegionId,
             isExpanded: true,
-
-            dropdownColor: Colors.white, // <-- fondo del menú
-            iconEnabledColor: Colors.white,
-            style: TextStyle(color: Colors.black),
+            dropdownColor: Colors.white,
+            iconEnabledColor: Colors.black45,
+            style: const TextStyle(color: Colors.black),
             hint: const Text('Región', style: TextStyle(color: Colors.black54)),
             decoration: _glassInput(
               'Región',
@@ -174,14 +170,20 @@ class _GuestFormState extends ConsumerState<GuestForm> {
           const SizedBox(height: 8),
         ],
 
+        // 🔴 Botón "Entrar como invitado" vinotinto
         SizedBox(
           height: 52,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              shape: const StadiumBorder(),
-              backgroundColor: const Color(0xFF0E4560),
-              foregroundColor: Colors.white,
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              backgroundColor: AppColors.panelWine,
+              foregroundColor: AppColors.textOnPanel,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
             ),
             onPressed: s.canSubmit ? n.submit : null,
             child: Text(s.isPosting ? 'Entrando…' : 'Entrar como invitado'),
@@ -194,8 +196,8 @@ class _GuestFormState extends ConsumerState<GuestForm> {
   InputDecoration _glassInput(
     String hint, {
     Widget? prefix,
-    String? suffixText, // <-- NUEVO
-    Widget? suffix, // opcional si quieres un widget en vez de texto
+    String? suffixText,
+    Widget? suffix,
   }) {
     return InputDecoration(
       hintText: hint,
@@ -204,8 +206,8 @@ class _GuestFormState extends ConsumerState<GuestForm> {
       prefixIconColor: Colors.black45,
       suffixIcon: suffix,
       suffixIconColor: Colors.black45,
-      suffixText: suffixText, // <-- NUEVO
-      suffixStyle: const TextStyle(color: Colors.black54), // <-- estilo fijo
+      suffixText: suffixText,
+      suffixStyle: const TextStyle(color: Colors.black54),
       labelStyle: const TextStyle(color: Colors.black),
       filled: true,
       fillColor: Colors.white.withValues(alpha: 0.92),
@@ -224,7 +226,7 @@ class _GuestFormState extends ConsumerState<GuestForm> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(24),
-        borderSide: BorderSide(color: Colors.redAccent),
+        borderSide: const BorderSide(color: Colors.redAccent),
       ),
       focusedErrorBorder: const OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(24)),

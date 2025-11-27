@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class AuthTabBar extends StatelessWidget {
   final AuthMode value;
   final ValueChanged<AuthMode> onChanged;
-  final bool isForgotMode; // 👈 nuevo
+  final bool isForgotMode;
 
   const AuthTabBar({
     super.key,
@@ -16,23 +16,26 @@ class AuthTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final group = isForgotMode ? null : value; // 👈 desmarca en modo forgot
+    final group = isForgotMode ? null : value;
 
-    return Opacity(
-      opacity: isForgotMode ? 0.85 : 1,
-      child: CupertinoSlidingSegmentedControl<AuthMode>(
-        backgroundColor: Colors.white.withValues(alpha: 0.18),
-        thumbColor: Colors.white.withValues(alpha: 0.90),
-        groupValue: group,
-        padding: const EdgeInsets.all(6),
-        children: const {
-          AuthMode.login: _SegLabel('Iniciar sesión'),
-          AuthMode.guest: _SegLabel('Invitado'),
-          AuthMode.register: _SegLabel('Crear cuenta'),
-        },
-        onValueChanged: (v) {
-          if (v != null) onChanged(v);
-        },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        width: double.infinity, // 👈 *obliga* a tomar ancho válido
+        child: CupertinoSlidingSegmentedControl<AuthMode>(
+          backgroundColor: Colors.white.withValues(alpha: 0.18),
+          thumbColor: Colors.white.withValues(alpha: 0.90),
+          groupValue: group,
+          padding: const EdgeInsets.all(6),
+          children: const {
+            AuthMode.login: _SegLabel('Iniciar sesión'),
+            AuthMode.guest: _SegLabel('Invitado'),
+            AuthMode.register: _SegLabel('Crear cuenta'),
+          },
+          onValueChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
       ),
     );
   }

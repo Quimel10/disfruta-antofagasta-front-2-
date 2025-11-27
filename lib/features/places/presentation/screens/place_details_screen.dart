@@ -50,144 +50,190 @@ class PlaceDetailsScreenState extends ConsumerState<PlaceDetailsScreen> {
     final lng = double.tryParse(place.longitud) ?? 0.0;
     final urls = buildGalleryUrls(place);
 
-    return Scaffold(
-      backgroundColor: AppColors.bluePrimaryDark,
-      body: CustomScrollView(
-        slivers: [
-          CustomSliverAppBar(
-            isFavorite: ref.watch(favoritesProvider).contains(place.id),
-            imageUrl: place.imagenHigh,
-            title: place.titulo,
-            heroTag: 'place_${place.id}',
-            onFavoriteToggle: () {
-              ref.read(favoritesProvider.notifier).toggle(place.id);
-            },
-            onShare: () {},
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Título + categoría
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          place.titulo,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.sandLight,
-                              ),
-                        ),
-                      ),
-                      Chip(
-                        backgroundColor: AppColors.sandLight,
-                        avatar: Image.network(
-                          place.tipoIcono,
-                          width: 20,
-                          height: 20,
-                        ),
-                        label: Text(
-                          place.tipo,
-                          style: const TextStyle(
-                            color: AppColors.bluePrimaryDark,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Mapa
-                  if (lat != 0 && lng != 0) ...[
-                    const SizedBox(height: 16),
-                    PlaceMapCard(lat: lat, lng: lng, title: place.titulo),
-                  ],
-
-                  const SizedBox(height: 8),
-
-                  // Audio descriptivo
-                  if (place.audio.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    AudioPlayerWidget(url: place.audio),
-                    const SizedBox(height: 16),
-                  ],
-
-                  // 🔹 DESCRIPCIÓN RENDERIZANDO HTML
-                  Html(
-                    data: place.descLarga,
-                    style: {
-                      "*": Style(
-                        color: AppColors.sandLight,
-                        fontSize: FontSize(14),
-                      ),
-                      "p": Style(margin: Margins.only(bottom: 8)),
-                      "strong": Style(fontWeight: FontWeight.bold),
-                      "b": Style(fontWeight: FontWeight.bold),
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Galería
-                  if (place.imgThumb.isNotEmpty) ...[
-                    Text(
-                      "Galería",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.sandLight,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 80,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: place.imgThumb.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          final thumb = place.imgThumb[index];
-
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  fullscreenDialog: true,
-                                  builder: (_) => ImageGalleryViewer(
-                                    imageUrls: urls,
-                                    initialIndex: index,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Hero(
-                                tag: 'place-${place.id}-img-$index',
-                                child: Image.network(
-                                  thumb,
-                                  width: 100,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+    return Stack(
+      children: [
+        // Fondo pergamino como en Home y Piezas
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/bg_portada.png'),
+              fit: BoxFit.cover,
             ),
           ),
-        ],
-      ),
+        ),
+
+        // Contenido
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          body: CustomScrollView(
+            slivers: [
+              CustomSliverAppBar(
+                imageUrl: place.imagenHigh,
+                title: place.titulo,
+                heroTag: 'place_${place.id}',
+                onShare: () {},
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.panelWine,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Título + categoría
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  place.titulo,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.sandLight,
+                                      ),
+                                ),
+                              ),
+                              Chip(
+                                backgroundColor: AppColors.sandLight,
+                                avatar: ClipRRect(
+                                  borderRadius: BorderRadius.circular(999),
+                                  child: Image.network(
+                                    place.tipoIcono,
+                                    width: 20,
+                                    height: 20,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.place,
+                                      size: 18,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                label: Text(
+                                  place.tipo,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Mapa
+                          if (lat != 0 && lng != 0) ...[
+                            const SizedBox(height: 16),
+                            PlaceMapCard(
+                              lat: lat,
+                              lng: lng,
+                              title: place.titulo,
+                            ),
+                          ],
+
+                          const SizedBox(height: 8),
+
+                          // Audio descriptivo (el widget ya usa color vino)
+                          if (place.audio.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            AudioPlayerWidget(url: place.audio),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // 🔹 DESCRIPCIÓN RENDERIZANDO HTML
+                          Html(
+                            data: place.descLarga,
+                            style: {
+                              "*": Style(
+                                color: AppColors.sandLight,
+                                fontSize: FontSize(14),
+                              ),
+                              "p": Style(margin: Margins.only(bottom: 8)),
+                              "strong": Style(fontWeight: FontWeight.bold),
+                              "b": Style(fontWeight: FontWeight.bold),
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Galería
+                          if (place.imgThumb.isNotEmpty) ...[
+                            Text(
+                              "Galería",
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.sandLight,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              height: 80,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: place.imgThumb.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(width: 8),
+                                itemBuilder: (context, index) {
+                                  final thumb = place.imgThumb[index];
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          fullscreenDialog: true,
+                                          builder: (_) => ImageGalleryViewer(
+                                            imageUrls: urls,
+                                            initialIndex: index,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Hero(
+                                        tag: 'place-${place.id}-img-$index',
+                                        child: Image.network(
+                                          thumb,
+                                          width: 100,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

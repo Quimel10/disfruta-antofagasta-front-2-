@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  //principales
+  // === PALETA ORIGINAL ===
+  // principales
   static const Color bluePrimaryDark = Color(0xFF21527D);
   static const Color bluePrimaryLight = Color(0xFF1C9FE2);
   static const Color orangePrimary = Color(0xFFF3771D);
 
   // degradados
-  static const blue = Color(0xFF0E4E78);
-  static const blueDeep = Color(0xFF0B3C5A);
-  static const cream = Color(0xFFF7F3EA);
-  static const coral = Color(0xFFFF6F59);
+  static const Color blue = Color(0xFF0E4E78);
+  static const Color blueDeep = Color(0xFF0B3C5A);
+  static const Color cream = Color(0xFFF7F3EA);
+  static const Color coral = Color(0xFFFF6F59);
+
   // Extras para “agua”
-  static const aqua = Color(0xFF0D7AA3);
-  static const cyanSoft = Color(0xFF78C9E2);
-  // Textos
+  static const Color aqua = Color(0xFF0D7AA3);
+  static const Color cyanSoft = Color(0xFF78C9E2);
+
+  // Textos neutros
   static const Color neutral900 = Color(0xFF2A2A2A);
   static const Color neutral800 = Color(0xFF464646);
   static const Color neutral700 = Color(0xFF828582);
@@ -32,6 +35,25 @@ class AppColors {
   static const Color success = Color(0xFF16A34A);
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFDC2626);
+
+  // === PALETA MUSEO / NUEVOS ===
+
+  /// Fondo tipo pergamino general
+  static const Color parchment = Color(0xFFF4E4C4);
+
+  /// Paneles / botones en naranja (por compatibilidad con código viejo)
+  static const Color panel = orangePrimary;
+  static const Color panelDark = Color(0xFFB15A12);
+
+  /// Vinotinto para botones y tarjetas (color del logo) - **ACLARADO**
+  static const Color panelWine = Color(0xFFB75B43); // vinotinto claro
+  static const Color panelWineDark = Color(0xFF8C3A28); // borde / hover
+
+  /// Texto genérico principal (fuera de paneles)
+  static const Color textPrimary = Colors.black;
+
+  /// Texto sobre botones/paneles oscuros
+  static const Color textOnPanel = Colors.white;
 }
 
 class AppRadius {

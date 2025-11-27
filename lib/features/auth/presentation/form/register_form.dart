@@ -1,8 +1,10 @@
+// lib/features/auth/presentation/form/register_form.dart
 import 'package:disfruta_antofagasta/features/auth/presentation/state/register/register_provider.dart';
+import 'package:disfruta_antofagasta/features/auth/domain/entities/country.dart';
+import 'package:disfruta_antofagasta/config/theme/theme_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:disfruta_antofagasta/features/auth/domain/entities/country.dart';
 
 final _registerObscureProvider = StateProvider.autoDispose<bool>((_) => true);
 
@@ -66,7 +68,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                 keyboard: const TextInputType.numberWithOptions(
                   signed: false,
                   decimal: false,
-                ), // teclado numérico puro
+                ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 suffix: const Padding(
                   padding: EdgeInsets.only(right: 12),
@@ -132,17 +134,14 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         ),
         const SizedBox(height: 8),
 
-        // 👇 País
+        // País
         DropdownButtonFormField<Country>(
           initialValue: s.selectedCountry,
           isExpanded: true,
-          dropdownColor: Colors.white, // <-- fondo del menú
+          dropdownColor: Colors.white,
           iconEnabledColor: Colors.black45,
-          style: TextStyle(color: Colors.black),
-          hint: const Text(
-            'País',
-            style: TextStyle(color: Colors.black54),
-          ), // <-- placeholder
+          style: const TextStyle(color: Colors.black),
+          hint: const Text('País', style: TextStyle(color: Colors.black54)),
           decoration: _decoration(
             'País',
             prefix: const Icon(Icons.public_outlined),
@@ -159,14 +158,14 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           ),
         const SizedBox(height: 12),
 
-        // 👇 Región (solo si el país lo requiere)
+        // Región (solo si el país lo requiere)
         if (s.needsRegion) ...[
           DropdownButtonFormField<int>(
             initialValue: s.selectedRegionId,
             isExpanded: true,
-            dropdownColor: Colors.white, // <-- fondo del menú
-            iconEnabledColor: Colors.white,
-            style: TextStyle(color: Colors.black),
+            dropdownColor: Colors.white,
+            iconEnabledColor: Colors.black45,
+            style: const TextStyle(color: Colors.black),
             hint: const Text('Región', style: TextStyle(color: Colors.black54)),
             decoration: _decoration(
               'Región',
@@ -185,20 +184,25 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           const SizedBox(height: 12),
         ],
 
-        // TOS
         if (s.error != null) ...[
           Text(s.error!, style: const TextStyle(color: Colors.red)),
           const SizedBox(height: 8),
         ],
 
+        // 🔴 Botón "Crear cuenta" vinotinto
         SizedBox(
           height: 52,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              shape: const StadiumBorder(),
-              backgroundColor: const Color(0xFF0E4560),
-              foregroundColor: Colors.white,
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              backgroundColor: AppColors.panelWine,
+              foregroundColor: AppColors.textOnPanel,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
             ),
             onPressed: s.isPosting ? null : n.submit,
             child: Text(s.isPosting ? 'Creando…' : 'Crear cuenta'),
@@ -214,7 +218,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     bool obscure = false,
     Widget? suffix,
     List<TextInputFormatter>? inputFormatters,
-    String? Function(String?)? validator, // <-- NUEVO
+    String? Function(String?)? validator,
     required ValueChanged<String> onChanged,
   }) {
     return TextFormField(
@@ -222,10 +226,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       onChanged: onChanged,
       keyboardType: keyboard,
       obscureText: obscure,
-      inputFormatters: inputFormatters, // <-- NUEVO (p.ej. solo dígitos)
-      autovalidateMode:
-          AutovalidateMode.onUserInteraction, // feedback inmediato
-      validator: validator, // <-- NUEVO
+      inputFormatters: inputFormatters,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
       decoration: _decoration(hint, suffix: suffix),
     );
   }
@@ -252,13 +255,12 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         borderSide: BorderSide(color: Color(0xFF0E4560), width: 1.2),
       ),
       errorBorder: OutlineInputBorder(
-        // borde de error consistente
         borderRadius: BorderRadius.circular(24),
         borderSide: BorderSide(color: Colors.red.withValues(alpha: 0.5)),
       ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(24),
-        borderSide: const BorderSide(color: Colors.red, width: 1.2),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        borderSide: BorderSide(color: Colors.red, width: 1.2),
       ),
     );
   }

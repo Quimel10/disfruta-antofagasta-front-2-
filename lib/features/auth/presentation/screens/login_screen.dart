@@ -1,15 +1,20 @@
-// lib/ui/auth/login_page.dart
+// lib/features/auth/presentation/screens/login_screen.dart
 import 'package:animations/animations.dart';
+
 import 'package:disfruta_antofagasta/features/auth/presentation/form/forgot_form.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/form/guest_form.dart';
-import 'package:disfruta_antofagasta/features/auth/presentation/form/login_form.dart';
+import 'package:disfruta_antofagasta/features/auth/presentation/form/login_form.dart'
+    as login; // 👈 alias, así no hay choque con ForgotForm de ese archivo
 import 'package:disfruta_antofagasta/features/auth/presentation/form/register_form.dart';
+
 import 'package:disfruta_antofagasta/features/auth/presentation/state/auth/auth_provider.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/widgets/auth_tab_bar.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/widgets/glass_card.dart';
 import 'package:disfruta_antofagasta/features/auth/presentation/widgets/waves_background.dart';
+
 import 'package:disfruta_antofagasta/shared/provider/auth_mode_provider.dart';
 import 'package:disfruta_antofagasta/shared/provider/forgot_mode_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,6 +32,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final mode = ref.watch(authModeProvider);
+
+    // Snackbars de error
     ref.listen<int>(authProvider.select((s) => s.errorSeq), (prev, seq) {
       if (prev == seq) return;
       final msg = ref.read(authProvider).errorMessage;
@@ -47,8 +54,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           );
       });
     });
+
     final reverse = _lastMode != null ? mode.index < _lastMode!.index : false;
     _lastMode = mode;
+
     final forgot = ref.watch(forgotModeProvider);
 
     return Scaffold(
@@ -69,8 +78,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     children: [
                       Image.asset('assets/logo.png', height: 200),
                       const SizedBox(height: 18),
-                      ref.watch(forgotModeProvider)
-                          ? SizedBox()
+
+                      // Ocultamos las pestañas cuando estamos en modo "olvidé contraseña"
+                      forgot
+                          ? const SizedBox.shrink()
                           : GlassCard(
                               borderRadius: 24,
                               padding: const EdgeInsets.all(10),
@@ -82,32 +93,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         m,
                               ),
                             ),
+
                       const SizedBox(height: 16),
+
                       GlassCard(
                         borderRadius: 28,
                         padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            // Límite razonable para la altura animada (ajusta al gusto)
                             final maxH =
                                 MediaQuery.of(context).size.height * 0.62;
 
                             return AnimatedSize(
-                              duration: const Duration(
-                                milliseconds: 320,
-                              ), // 700 es muuuy largo
+                              duration: const Duration(milliseconds: 320),
                               curve: Curves.easeInOutCubic,
                               alignment: Alignment.topCenter,
-                              clipBehavior: Clip
-                                  .hardEdge, // evita “parpadeos” en los bordes
-                              // Le damos un límite de altura para que AnimatedSize pueda interpolar
+                              clipBehavior: Clip.hardEdge,
                               child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  // si el form mide menos, se encoge; si mide más, scrollea
-                                  maxHeight: maxH,
-                                ),
-
-                                // Permitimos scroll SOLO dentro del área limitada
+                                constraints: BoxConstraints(maxHeight: maxH),
                                 child: SingleChildScrollView(
                                   physics: const BouncingScrollPhysics(),
                                   child: PageTransitionSwitcher(
@@ -128,16 +131,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         },
                                     child: switch (mode) {
                                       AuthMode.login =>
-                                        ref.watch(forgotModeProvider)
+                                        // Alternamos entre Login y Forgot
+                                        forgot
                                             ? const ForgotForm(
                                                 key: ValueKey('forgot'),
                                               )
-                                            : const LoginForm(
+                                            : const login.LoginForm(
                                                 key: ValueKey('login'),
                                               ),
                                       AuthMode.guest => const GuestForm(
                                         key: ValueKey('guest'),
                                       ),
+
                                       AuthMode.register => const RegisterForm(
                                         key: ValueKey('register'),
                                       ),
@@ -149,7 +154,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           },
                         ),
                       ),
-
                       const SizedBox(height: 16),
                     ],
                   ),

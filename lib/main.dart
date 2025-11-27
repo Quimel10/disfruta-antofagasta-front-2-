@@ -4,25 +4,22 @@ import 'package:disfruta_antofagasta/config/theme/theme_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
+
+class NoGlowScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child; // ❌ Sin brillo azul, sin nada.
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-
   await Environment.initEnvironment();
-
-  // 🔥🔥🔥 TEST DIRECTO AL BACKEND ANTES DE ABRIR LA APP 🔥🔥🔥
-  final dio = Dio(BaseOptions(baseUrl: Environment.apiUrl));
-  print('🌐 TEST baseUrl: ${Environment.apiUrl}');
-  try {
-    final resp = await dio.get('/get_destacados');
-    print('✅ TEST status: ${resp.statusCode}');
-    print('✅ TEST data: ${resp.data}');
-  } catch (e) {
-    print('❌ TEST error: $e');
-  }
-  // 🔥🔥🔥 FIN DEL TEST 🔥🔥🔥
 
   runApp(
     EasyLocalization(
@@ -63,6 +60,9 @@ class MainApp extends ConsumerWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
+
+      // 💥 ESTA LÍNEA ELIMINA EL BRILLO AZUL GLOBAL
+      scrollBehavior: NoGlowScrollBehavior(),
     );
   }
 }

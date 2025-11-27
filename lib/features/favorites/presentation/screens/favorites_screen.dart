@@ -13,12 +13,6 @@ class FavoritesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
 
-    // if (favorites.isEmpty) {
-    //   return const Center(child: Text('No tienes favoritos aún'));
-    // }
-
-    // Suponiendo que ya tienes todos los lugares en memoria
-    // Si no, necesitarás cargarlos por ID desde el backend
     final allPlaces = ref.watch(placeProvider).places ?? [];
     final favPlaces = allPlaces.where((p) => favorites.contains(p.id)).toList();
 
@@ -29,9 +23,11 @@ class FavoritesScreen extends ConsumerWidget {
           'Tus Favoritos',
           style: TextStyle(color: Colors.white),
         ),
+        backgroundColor: AppColors.bluePrimaryDark,
+        elevation: 0,
       ),
       body: favorites.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
                 'No tienes favoritos aún',
                 style: TextStyle(color: Colors.white),
@@ -44,7 +40,6 @@ class FavoritesScreen extends ConsumerWidget {
                 final p = favPlaces[i];
                 return PlaceCard(
                   place: p,
-                  isFavorite: true,
                   onFavoriteTap: () {
                     ref.read(favoritesProvider.notifier).toggle(p.id);
                   },
