@@ -151,7 +151,7 @@ class PlaceDetailsScreenState extends ConsumerState<PlaceDetailsScreen> {
 
                           const SizedBox(height: 8),
 
-                          // Audio descriptivo (el widget ya usa color vino)
+                          // Audio descriptivo
                           if (place.audio.isNotEmpty) ...[
                             const SizedBox(height: 16),
                             AudioPlayerWidget(url: place.audio),
@@ -160,7 +160,9 @@ class PlaceDetailsScreenState extends ConsumerState<PlaceDetailsScreen> {
 
                           // 🔹 DESCRIPCIÓN RENDERIZANDO HTML
                           Html(
-                            data: place.descLarga,
+                            // Si el backend envía desc_larga_html la usamos.
+                            // Si no, caemos al texto plano descLarga.
+                            data: place.descLargaHtml ?? place.descLarga,
                             style: {
                               "*": Style(
                                 color: AppColors.sandLight,
@@ -241,14 +243,11 @@ class PlaceDetailsScreenState extends ConsumerState<PlaceDetailsScreen> {
 /// Construye las URLs para el visor de galería.
 /// - Si existe `imgMedium[i]`, usa esa.
 /// - Si no, usa el `imgThumb[i]` correspondiente.
-/// Ya no reutilizamos `imagenHigh` para todas las posiciones.
 List<String> buildGalleryUrls(PlaceEntity place) {
   return List<String>.generate(place.imgThumb.length, (i) {
     if (i < place.imgMedium.length && place.imgMedium[i].isNotEmpty) {
       return place.imgMedium[i];
     }
-
-    // Fallback: usar el thumb de ese índice
     return place.imgThumb[i];
   });
 }
