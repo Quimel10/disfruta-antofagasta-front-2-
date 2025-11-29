@@ -1,6 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class QrScannerScreen extends StatefulWidget {
@@ -11,94 +12,126 @@ class QrScannerScreen extends StatefulWidget {
 }
 
 class _QrScannerScreenState extends State<QrScannerScreen> {
-  late final MobileScannerController _controller;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? _controller;
   bool _isProcessing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
-      facing: CameraFacing.back,
-    );
-  }
 
   bool _esSoloNumeros(String valor) => RegExp(r'^\d+$').hasMatch(valor);
 
   @override
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      _controller?.pauseCamera();
+    } else if (Platform.isIOS) {
+      _controller?.resumeCamera();
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
-  Future<void> _handleCapture(
-    BuildContext context,
-    BarcodeCapture capture,
-  ) async {
-    if (_isProcessing) return;
-    if (capture.barcodes.isEmpty) return;
+  Future<void> _onQRViewCreated(QRViewController controller) async {
+    _controller = controller;
 
-    final rawOriginal = capture.barcodes.first.rawValue;
-    if (rawOriginal == null) return;
+    controller.scannedDataStream.listen((scanData) async {
+      if (_isProcessing) return;
 
-    final raw = rawOriginal.trim();
-    _isProcessing = true;
+      final rawOriginal = scanData.code;
+      if (rawOriginal == null) return;
 
-    // Detenemos la cámara al primer scan
-    await _controller.stop();
+      final raw = rawOriginal.trim();
+      _isProcessing = true;
 
-    // 1) Si es numérico -> navegar a la pieza
-    if (_esSoloNumeros(raw)) {
-      if (!mounted) return;
+      await _controller?.pauseCamera();
 
-      await context.push('/place/$raw');
+      if (_esSoloNumeros(raw)) {
+        if (!mounted) return;
 
-      // Al volver atrás, reactivamos cámara para nuevo scan
-      if (!mounted) return;
-      _isProcessing = false;
-      await _controller.start();
-      return;
-    }
+        await context.push('/place/$raw');
 
-    // 2) Intentar abrir URL si hay una
-    final urlMatch = RegExp(r'(https?:\/\/[^\s]+)').firstMatch(raw);
-
-    if (urlMatch != null) {
-      final uri = Uri.parse(urlMatch.group(0)!);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-        // Si se va al navegador, dejamos la cámara parada (es otro flujo)
-      } else {
-        // Si falla abrir, permitimos reintentar
+        if (!mounted) return;
         _isProcessing = false;
-        await _controller.start();
+        await _controller?.resumeCamera();
+        return;
       }
-    } else {
-      // Contenido no soportado, reactivamos para permitir otro scan
-      _isProcessing = false;
-      await _controller.start();
-    }
+
+      final urlMatch = RegExp(r'(https?:\/\/[^\s]+)').firstMatch(raw);
+
+      if (urlMatch != null) {
+        final uri = Uri.parse(urlMatch.group(0)!);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          _isProcessing = false;
+          await _controller?.resumeCamera();
+        }
+      } else {
+        _isProcessing = false;
+        await _controller?.resumeCamera();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Igual que HomeScreen
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          "Escanear QR",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      // 🔥 Fondo igual al Home
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/bg_portada.png"),
+            fit: BoxFit.cover,
+          ),
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.black, // flecha atrás negra
+        child: Column(
+          children: [
+            const SizedBox(height: 45),
+
+            // 🔥 Título
+            const Text(
+              "Escanear QR",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // 🔥 QR VIEW dentro de un cuadro
+            Expanded(
+              flex: 4,
+              child: Center(
+                child: Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.orange, width: 4),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: QRView(key: qrKey, onQRViewCreated: _onQRViewCreated),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // 🔥 Texto corto
+            const Padding(
+              padding: EdgeInsets.only(bottom: 20),
+              child: Text(
+                "Escanea el código QR",
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+            ),
+          ],
         ),
-      ),
-      body: MobileScanner(
-        controller: _controller,
-        onDetect: (capture) => _handleCapture(context, capture),
       ),
     );
   }

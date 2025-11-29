@@ -2,7 +2,8 @@ name: disfruta_antofagasta
 description: "Museo RapaNui - Isla de Pascua"
 publish_to: 'none'
 
-version: 1.0.4+10   # nueva versión limpia para Apple
+# Nueva versión para App Store (build 10)
+version: 1.0.4+10
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -25,8 +26,6 @@ dependencies:
   url_launcher: ^6.3.2
   photo_view: ^0.15.0
   pdfx: ^2.9.2
-  flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: ^2.4.6
   flutter_map: ^8.2.1
   latlong2: ^0.9.1
   easy_localization: ^3.0.8
@@ -37,10 +36,11 @@ dependencies:
   audioplayers: ^6.1.0
   just_audio: ^0.9.42
 
-  # 👉 Nuevo escáner QR compatible iOS + Android (NO usa MLKit)
-  qr_code_scanner: ^1.0.1
+  # 👉 plugin local de QR
+  qr_code_scanner:
+    path: packages/qr_code_scanner
 
-  # 👇 Librería para renderizar HTML
+  # Renderizado de HTML
   flutter_html: ^3.0.0-beta.2
 
 dev_dependencies:
@@ -48,13 +48,16 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+  # Herramientas de build (solo dev)
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
+
 flutter:
   uses-material-design: true
 
   assets:
     - .env
     - assets/weather/1.png
-    - assets/logo.png
     - assets/weather/2.png
     - assets/weather/3.png
     - assets/weather/4.png
@@ -63,20 +66,23 @@ flutter:
     - assets/weather/7.png
     - assets/weather/8.png
     - assets/weather/9.png
+    - assets/logo.png
+    - assets/logo_museo.png
+    - assets/bg_portada.png
     - assets/pdf/antofagasta-mapa-turistico-mobile-small.pdf
     - assets/i18n/es.json
     - assets/i18n/en.json
     - assets/i18n/pt.json
     - assets/i18n/fr.json
-    - assets/bg_portada.png
-    - assets/logo_museo.png
 
+# Configuración de iconos
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/logo_museo.png"
   min_sdk_android: 21
 
+# Configuración de splash
 flutter_native_splash:
   color: "#ffffff"
   image: assets/logo_museo.png
