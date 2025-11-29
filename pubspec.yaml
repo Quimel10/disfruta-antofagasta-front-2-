@@ -68,6 +68,7 @@ flutter:
     - assets/weather/9.png
     - assets/logo.png
     - assets/logo_museo.png
+    - assets/icon_ios.png        # 👈 lo agregamos por si lo necesitás en el proyecto
     - assets/bg_portada.png
     - assets/pdf/antofagasta-mapa-turistico-mobile-small.pdf
     - assets/i18n/es.json
@@ -79,7 +80,9 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo_museo.png"
+  image_path: "assets/logo_museo.png"    # Android puede usar PNG con transparencia
+  image_path_ios: "assets/icon_ios.png"  # iOS necesita un ícono sin transparencia
+  remove_alpha_ios: true                 # Obligatorio para pasar revisión
   min_sdk_android: 21
 
 # Configuración de splash
